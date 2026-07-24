@@ -1,9 +1,14 @@
-import React from 'react'
-import { Outlet, Link } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useCartStore } from '../../store/cartStore'
 
 const ClientLayout = () => {
   const cartItems = useCartStore((state) => state.cartItems)
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
   const itemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0)
   const total = cartItems.reduce((acc, item) => acc + (item.finalPrice * item.quantity), 0)
 
