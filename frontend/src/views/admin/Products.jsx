@@ -218,7 +218,7 @@ export default function Products() {
                 value={dr.discount_price}
                 onChange={(e) => updateDailyRoll(index, 'discount_price', e.target.value)}
                 className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-2 text-sm font-bold text-gray-700 focus:outline-none"
-                placeholder="Precio tachado (ej: 25000)"
+                placeholder="Precio de venta en la app (ej: 15000)"
               />
             </div>
           ))}

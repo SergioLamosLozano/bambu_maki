@@ -62,7 +62,7 @@ export default function ProductBuilder() {
   }
 
   if (loading) {
-    return <div className="p-8 text-center font-bold text-gray-500">Cargando opciones...</div>;
+    return <div className="p-8 text-center font-bold text-[#ECDA35]">Cargando opciones...</div>;
   }
 
   const hasRollsSelection = item.includes_rolls > 0;
@@ -176,8 +176,8 @@ export default function ProductBuilder() {
       return (
         <div className="text-center py-8">
           <span className="text-6xl mb-4 block">✅</span>
-          <h2 className="text-3xl font-black uppercase mb-2">¡Todo Listo!</h2>
-          <p className="text-gray-500 font-bold mb-4">Verifica tu resumen en la parte inferior y agrega al carrito.</p>
+          <h2 className="text-3xl font-black uppercase mb-2 text-[#ECDA35]">¡Todo Listo!</h2>
+          <p className="text-[#C99B62] font-bold mb-4">Verifica tu resumen en la parte inferior y agrega al carrito.</p>
           {hasRollsSelection && (
             <div className="bg-yellow-50 p-4 rounded-xl inline-block max-w-sm mx-auto border-2 border-yellow-200">
               <p className="font-bold text-yellow-800 text-sm">Rollos Seleccionados:</p>
@@ -197,8 +197,8 @@ export default function ProductBuilder() {
     if (hasRollsSelection && currentStep === 1) {
       return (
         <div>
-          <h2 className="text-2xl font-black uppercase mb-2">Elige tus {item.includes_rolls} Rollos</h2>
-          <p className="text-gray-500 font-bold mb-6">Llevas {selectedRolls.length} de {item.includes_rolls} elegidos.</p>
+          <h2 className="text-2xl font-black uppercase mb-2 text-[#ECDA35]">Elige tus {item.includes_rolls} Rollos</h2>
+          <p className="text-[#C99B62] font-bold mb-6">Llevas {selectedRolls.length} de {item.includes_rolls} elegidos.</p>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {availableRolls.map(roll => {
@@ -231,7 +231,7 @@ export default function ProductBuilder() {
 
     return (
       <div>
-        <h2 className="text-2xl font-black uppercase mb-4">{category.name}</h2>
+        <h2 className="text-2xl font-black uppercase mb-4 text-[#ECDA35]">{category.name}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {category.options.map(option => (
             <OptionCard 

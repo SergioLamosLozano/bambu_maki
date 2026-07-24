@@ -26,7 +26,8 @@ export default function Home() {
         if (dailyRollData && dailyRollData.variation) {
           rolloDelDia = {
             ...dailyRollData.variation,
-            originalPrice: parseInt(dailyRollData.discount_price) || null
+            originalPrice: dailyRollData.variation.base_price,
+            base_price: parseInt(dailyRollData.discount_price) || dailyRollData.variation.base_price
           };
         }
 
