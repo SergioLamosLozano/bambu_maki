@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bambu-yellow: #ECDA35;
+  --color-bambu-green: #75A721;
+  --color-bambu-red: #FC2803;
+  --color-bambu-sand: #C99B62;
+  --color-bambu-dark: #112109;
+
+  /* Aliasing to keep existing classes working or update them later */
+  --color-pastel-cream: #FFFDF5; /* A soft cream background to complement the sand */
+  --color-pastel-pink: #FC2803; /* Replaced with Bambu Red */
+  --color-pastel-green: #75A721; /* Replaced with Bambu Green */
+  --color-pastel-green-dark: #112109; /* Replaced with Bambu Dark */
+  --color-pastel-yellow: #ECDA35; /* Replaced with Bambu Yellow */
+  --color-pastel-blue: #C99B62; /* Replaced with Bambu Sand */
+  --color-pastel-salmon: #FC2803;
+  --color-pastel-purple: #112109;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-pastel-cream);
+    color: #1f2937;
+    font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  }
+}

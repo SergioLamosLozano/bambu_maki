@@ -1,0 +1,25 @@
+# General
+node_modules/
+dist/
+build/
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+*.sqlite3
+*.db
+
+# Env vars
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
