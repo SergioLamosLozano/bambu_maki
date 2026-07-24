@@ -5,14 +5,12 @@ from app.api.endpoints import products, orders, settings, options, auth, upload
 
 app = FastAPI(title="Bambu Maki API", description="API for DeliSushi orders")
 
-import os
-
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173,http://127.0.0.1:5173")
-origins = [url.strip() for url in FRONTEND_URL.split(",") if url.strip()]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://bambu-maki.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
