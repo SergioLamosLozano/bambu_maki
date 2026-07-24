@@ -25,7 +25,7 @@ export default function StickySummary({
       </div>
 
       {/* Extras List */}
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2 mb-4 max-h-28 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
         {extras.map((extra, idx) => (
           <div key={idx} className="flex justify-between items-center text-sm font-bold text-gray-500 uppercase">
             <span>

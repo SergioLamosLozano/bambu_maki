@@ -147,9 +147,12 @@ async def update_daily_rolls(
     result = await db.execute(select(DailyRoll).options(selectinload(DailyRoll.variation)))
     return result.scalars().all()
 
+from datetime import datetime, timezone, timedelta
+
 @router.get("/daily_roll/today", response_model=Optional[DailyRollResponse])
 async def get_daily_roll_today(db: AsyncSession = Depends(get_db)):
-    today = datetime.today().weekday() # 0 = Monday, 6 = Sunday
+    colombia_tz = timezone(timedelta(hours=-5))
+    today = datetime.now(colombia_tz).weekday() # 0 = Monday, 6 = Sunday
     result = await db.execute(
         select(DailyRoll)
         .options(selectinload(DailyRoll.variation))
