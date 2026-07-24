@@ -1,3 +1,4 @@
+import { API_URL, API_BASE } from '../../config'
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,8 +12,8 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const [productsRes, todayRollRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/products/'),
-          axios.get('http://localhost:8000/api/products/daily_roll/today').catch(() => ({ data: null }))
+          axios.get(`${API_URL}/products/`),
+          axios.get(`${API_URL}/products/daily_roll/today`).catch(() => ({ data: null }))
         ]);
 
         const data = productsRes.data;
@@ -79,7 +80,7 @@ export default function Home() {
       {products.rolloDelDia && (
         <div className="mb-10">
           <h2 className="text-lg font-black uppercase mb-4 px-1 flex items-center gap-2" style={{ color: '#ECDA35' }}>
-            <span>⭐️</span> Sub del Día
+            <span>⭐️</span> Rollo del Día
           </h2>
           <div
             onClick={() => handleBuildCombo(products.rolloDelDia, 'rollo')}
@@ -91,7 +92,7 @@ export default function Home() {
             }}
           >
             {products.rolloDelDia.image_url ? (
-              <img src={`http://localhost:8000${products.rolloDelDia.image_url}`} alt={products.rolloDelDia.name} className="w-full h-48 object-cover rounded-xl mb-4" />
+              <img src={`${API_BASE}${products.rolloDelDia.image_url}`} alt={products.rolloDelDia.name} className="w-full h-48 object-cover rounded-xl mb-4" />
             ) : (
               <span className="text-6xl mb-4">🍱</span>
             )}
@@ -133,7 +134,7 @@ export default function Home() {
                 }}
               >
                 {combo.image_url ? (
-                  <img src={`http://localhost:8000${combo.image_url}`} alt={combo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
+                  <img src={`${API_BASE}${combo.image_url}`} alt={combo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
                 ) : (
                   <span className="text-6xl mb-4">🍱</span>
                 )}
@@ -169,7 +170,7 @@ export default function Home() {
                 }}
               >
                 {rollo.image_url ? (
-                  <img src={`http://localhost:8000${rollo.image_url}`} alt={rollo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
+                  <img src={`${API_BASE}${rollo.image_url}`} alt={rollo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
                 ) : (
                   <span className="text-6xl mb-4">🍣</span>
                 )}

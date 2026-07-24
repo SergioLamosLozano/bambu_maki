@@ -1,3 +1,4 @@
+import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -25,7 +26,7 @@ export default function ProductBuilder() {
 
   useEffect(() => {
     if (item) {
-      axios.get('http://127.0.0.1:8000/api/options/categories')
+      axios.get(`${API_URL}/options/categories`)
         .then(res => {
           // Filter categories: must be active AND (global or matches this product type)
           const activeCategories = res.data.filter(c => 
@@ -44,7 +45,7 @@ export default function ProductBuilder() {
         .finally(() => setLoading(false));
         
       if (item.includes_rolls > 0) {
-        axios.get('http://127.0.0.1:8000/api/products/')
+        axios.get(`${API_URL}/products/`)
           .then(res => {
             const rollsType = res.data.find(type => type.name.toLowerCase().includes('rollo'));
             if (rollsType) {

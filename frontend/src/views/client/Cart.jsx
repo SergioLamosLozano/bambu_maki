@@ -1,3 +1,4 @@
+import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -17,7 +18,7 @@ export default function Cart() {
   const [deliveryCost, setDeliveryCost] = useState(3000)
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/settings/delivery_cost')
+    fetch(`${API_URL}/settings/delivery_cost`)
       .then(res => res.json())
       .then(data => {
         if (data && data.value) {
@@ -79,7 +80,7 @@ export default function Cart() {
         items
       };
 
-      const response = await fetch('http://127.0.0.1:8000/api/orders/', {
+      const response = await fetch(`${API_URL}/orders/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

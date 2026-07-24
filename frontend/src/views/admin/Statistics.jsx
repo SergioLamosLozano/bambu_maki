@@ -1,10 +1,11 @@
+import { API_URL, API_BASE } from '../../config'
 import React, { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area
 } from 'recharts'
 
-const API = 'http://127.0.0.1:8000'
+const API = `${API_BASE}`
 
 // Paleta de marca
 const BRAND = {
@@ -109,7 +110,7 @@ export default function Statistics() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch(`${API}/api/orders/analytics`)
+    fetch(`${API_URL}/orders/analytics`)
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()

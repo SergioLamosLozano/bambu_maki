@@ -1,8 +1,9 @@
+import { API_URL } from '../config'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_URL = import.meta.env.VITE_API_URL || `${API_URL}`
 
 export const useAuthStore = create(
   persist(

@@ -1,3 +1,4 @@
+import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { Save, CheckCircle } from 'lucide-react'
@@ -17,7 +18,7 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/settings/')
+      const res = await fetch(`${API_URL}/settings/`)
       if (res.ok) {
         const data = await res.json()
         const delivery = data.find(s => s.key === 'delivery_cost')
@@ -39,7 +40,7 @@ const Settings = () => {
     setSaved(false)
     try {
       // Save delivery cost
-      await fetch('http://127.0.0.1:8000/api/settings/delivery_cost', {
+      await fetch(`${API_URL}/settings/delivery_cost`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ const Settings = () => {
       })
 
       // Save whatsapp template
-      await fetch('http://127.0.0.1:8000/api/settings/whatsapp_template', {
+      await fetch(`${API_URL}/settings/whatsapp_template`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

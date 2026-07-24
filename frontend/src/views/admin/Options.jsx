@@ -1,3 +1,4 @@
+import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -31,8 +32,8 @@ export default function Options() {
   const fetchData = async () => {
     try {
       const [catsRes, typesRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/options/categories'),
-        axios.get('http://127.0.0.1:8000/api/products/')
+        axios.get(`${API_URL}/options/categories`),
+        axios.get(`${API_URL}/products/`)
       ])
       setCategories(catsRes.data)
       setProductTypes(typesRes.data)
@@ -66,7 +67,7 @@ export default function Options() {
         product_type_id: categoryForm.product_type_id || null,
         max_selections: categoryForm.max_selections ? parseInt(categoryForm.max_selections) : null
       }
-      await axios.post('http://127.0.0.1:8000/api/options/categories', payload)
+      await axios.post(`${API_URL}/options/categories`, payload)
       toast.success('Categoría creada correctamente')
       setIsCategoryModalOpen(false)
       setCategoryForm({ name: '', product_type_id: '', is_required: false, max_selections: '', is_active: true, allow_quantity: false })
@@ -80,7 +81,7 @@ export default function Options() {
   const handleDeleteCategory = async (id) => {
     if(window.confirm('¿Seguro que quieres eliminar esta categoría y todas sus opciones?')) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/options/categories/${id}`)
+        await axios.delete(`${API_URL}/options/categories/${id}`)
         toast.success('Categoría eliminada')
         fetchData()
       } catch (error) {
@@ -93,7 +94,7 @@ export default function Options() {
   const handleCreateOption = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`http://127.0.0.1:8000/api/options/categories/${selectedCategory.id}/options`, optionForm)
+      await axios.post(`${API_URL}/options/categories/${selectedCategory.id}/options`, optionForm)
       toast.success('Opción agregada')
       setIsOptionModalOpen(false)
       setOptionForm({ name: '', extra_price: 0, emoji: '' })
@@ -107,7 +108,7 @@ export default function Options() {
   const handleDeleteOption = async (id) => {
     if(window.confirm('¿Seguro que quieres eliminar esta opción?')) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/options/options/${id}`)
+        await axios.delete(`${API_URL}/options/options/${id}`)
         toast.success('Opción eliminada')
         fetchData()
       } catch (error) {

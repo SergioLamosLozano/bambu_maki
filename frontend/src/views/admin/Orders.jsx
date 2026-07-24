@@ -1,3 +1,4 @@
+import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react'
 import { RefreshCw, CloudOff, X } from 'lucide-react'
 
@@ -22,8 +23,8 @@ const Orders = () => {
   const fetchOrdersAndStats = async () => {
     try {
       const [ordersRes, statsRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/orders/'),
-        fetch('http://127.0.0.1:8000/api/orders/stats')
+        fetch(`${API_URL}/orders/`),
+        fetch(`${API_URL}/orders/stats`)
       ])
       if (ordersRes.ok) {
         const ordersData = await ordersRes.json()
@@ -42,7 +43,7 @@ const Orders = () => {
   useEffect(() => {
     fetchOrdersAndStats()
     // Cargar template de WhatsApp al inicio (sin bloquear)
-    fetch('http://127.0.0.1:8000/api/settings/whatsapp_template')
+    fetch(`${API_URL}/settings/whatsapp_template`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.value) setWhatsappTemplate(d.value) })
       .catch(() => {})
@@ -89,7 +90,7 @@ const Orders = () => {
       : null
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })

@@ -1,3 +1,4 @@
+import { API_URL, API_BASE } from '../../config'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '../../store/authStore';
@@ -37,7 +38,7 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/products/');
+      const response = await axios.get(`${API_URL}/products/`);
       const types = response.data;
       setProductTypes(types);
       
@@ -48,7 +49,7 @@ export default function Products() {
       setProducts(allVariations);
       
       // Fetch Daily Rolls Weekly Schedule
-      const drRes = await axios.get('http://localhost:8000/api/products/daily_rolls');
+      const drRes = await axios.get(`${API_URL}/products/daily_rolls`);
       if (drRes.data && drRes.data.length > 0) {
         const fetchedRolls = drRes.data.map(dr => ({
           day_of_week: dr.day_of_week,
@@ -77,7 +78,7 @@ export default function Products() {
     setNewPrice(item.base_price || '');
     setDescription(item.description || '');
     setIncludesRolls(item.includes_rolls || 0);
-    setPreview(item.image_url ? `http://localhost:8000${item.image_url}` : null);
+    setPreview(item.image_url ? `${API_BASE}${item.image_url}` : null);
     setFile(null);
     setIsCreating(false);
   };
@@ -109,7 +110,7 @@ export default function Products() {
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
-        const uploadRes = await axios.post('http://localhost:8000/api/upload/', formData, {
+        const uploadRes = await axios.post(`${API_URL}/upload/`, formData, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
@@ -128,11 +129,11 @@ export default function Products() {
 
       if (isCreating) {
         payload.product_type_id = newTypeId;
-        await axios.post('http://localhost:8000/api/products/variations', payload, {
+        await axios.post(`${API_URL}/products/variations`, payload, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
       } else {
-        await axios.put(`http://localhost:8000/api/products/variations/${editingItem.id}`, payload, {
+        await axios.put(`${API_URL}/products/variations/${editingItem.id}`, payload, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
       }
@@ -152,7 +153,7 @@ export default function Products() {
       // Filter out empty selections
       const validRolls = dailyRolls.filter(dr => dr.product_variation_id !== '');
       
-      await axios.put(`http://localhost:8000/api/products/daily_rolls`, validRolls, {
+      await axios.put(`${API_URL}/products/daily_rolls`, validRolls, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success("Programación semanal del Rollo del Día guardada con éxito");
@@ -240,7 +241,7 @@ export default function Products() {
               <div>
                 <h3 className="font-black text-lg">{item.name}</h3>
                 <p className="text-sm text-gray-500 mb-2">{item.description}</p>
-                {item.image_url && <img src={`http://localhost:8000${item.image_url}`} alt={item.name} className="h-32 w-full object-cover rounded-lg mb-2" />}
+                {item.image_url && <img src={`${API_BASE}${item.image_url}`} alt={item.name} className="h-32 w-full object-cover rounded-lg mb-2" />}
                 <p className="font-bold text-green-600">${item.base_price}</p>
                 {item.includes_rolls > 0 && (
                   <p className="text-xs font-bold text-yellow-600 mt-1 bg-yellow-100 p-1 rounded inline-block">
