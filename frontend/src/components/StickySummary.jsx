@@ -42,29 +42,30 @@ export default function StickySummary({
 
       <div className="border-t border-dashed border-gray-300 my-3"></div>
 
-      {/* Total */}
-      <div className="flex justify-between items-end mb-4">
-        <span className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Total Actual</span>
-        <span className="text-3xl font-black text-red-600">${totalPrice.toLocaleString()}</span>
-      </div>
+      {/* Total and Action Buttons (Combined to save space) */}
+      <div className="flex items-center justify-between gap-3 mt-1">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mb-1">Total</span>
+          <span className="text-2xl font-black text-red-600 leading-none">${totalPrice.toLocaleString()}</span>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <button 
-          onClick={onBack}
-          className="w-1/3 bg-white text-gray-600 font-extrabold uppercase rounded-xl py-3 border-2 border-gray-200 hover:bg-gray-50 transition-colors text-sm"
-        >
-          Atrás
-        </button>
-        <button 
-          onClick={onNext}
-          disabled={isNextDisabled}
-          className={`w-2/3 text-white font-extrabold uppercase rounded-xl py-3 transition-colors text-sm ${
-            isNextDisabled ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-red-600 hover:bg-red-700'
-          }`}
-        >
-          {nextLabel}
-        </button>
+        <div className="flex gap-2 flex-1 justify-end">
+          <button 
+            onClick={onBack}
+            className="px-4 bg-white text-gray-600 font-extrabold uppercase rounded-xl py-3 border-2 border-gray-200 hover:bg-gray-50 transition-colors text-xs"
+          >
+            Atrás
+          </button>
+          <button 
+            onClick={onNext}
+            disabled={isNextDisabled}
+            className={`flex-1 text-white font-extrabold uppercase rounded-xl py-3 transition-colors text-xs px-2 ${
+              isNextDisabled ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-red-600 hover:bg-red-700'
+            }`}
+          >
+            {nextLabel}
+          </button>
+        </div>
       </div>
     </div>
   );

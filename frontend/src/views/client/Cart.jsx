@@ -277,7 +277,7 @@ export default function Cart() {
 
       {/* Sticky Checkout */}
       <div
-        className="fixed bottom-0 left-0 right-0 p-6 pb-8 z-50"
+        className="fixed bottom-0 left-0 right-0 p-4 pb-5 z-50"
         style={{
           background: '#112109',
           borderTop: '3px solid #ECDA35',
@@ -285,43 +285,43 @@ export default function Cart() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center font-bold mb-2 uppercase text-xs tracking-widest" style={{ color: '#C99B62' }}>
+          <div className="flex justify-between items-center font-bold mb-1 uppercase text-[10px] tracking-widest" style={{ color: '#C99B62' }}>
             <span>Subtotal</span>
             <span>${subtotal.toLocaleString()}</span>
           </div>
 
           {costoEnvio > 0 && (
-            <div className="flex justify-between items-center font-bold mb-4 uppercase text-xs tracking-widest" style={{ color: '#C99B62' }}>
+            <div className="flex justify-between items-center font-bold mb-2 uppercase text-[10px] tracking-widest" style={{ color: '#C99B62' }}>
               <span>Domicilio</span>
               <span>${costoEnvio.toLocaleString()}</span>
             </div>
           )}
 
-          <div className="flex justify-between items-end mb-6">
-            <span className="text-sm font-black uppercase" style={{ color: '#fff' }}>Total</span>
-            <span className="text-4xl font-black" style={{ color: '#ECDA35' }}>${totalFinal.toLocaleString()}</span>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs font-black uppercase" style={{ color: '#fff' }}>Total</span>
+            <span className="text-3xl font-black" style={{ color: '#ECDA35' }}>${totalFinal.toLocaleString()}</span>
           </div>
 
           <button
             onClick={handleConfirmOrder}
             disabled={!isFormValid}
-            className="w-full py-5 rounded-2xl font-black uppercase text-lg transition-all"
+            className="w-full py-3 rounded-xl font-black uppercase text-base transition-all"
             style={
               isFormValid
                 ? {
-                    background: '#FC2803',
-                    color: '#fff',
-                    boxShadow: '0 6px 24px rgba(252,40,3,0.45)',
-                    transform: 'none'
-                  }
+                  background: '#FC2803',
+                  color: '#fff',
+                  boxShadow: '0 4px 16px rgba(252,40,3,0.4)',
+                  transform: 'none'
+                }
                 : {
-                    background: 'rgba(255,255,255,0.1)',
-                    color: 'rgba(255,255,255,0.3)',
-                    cursor: 'not-allowed'
-                  }
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.3)',
+                  cursor: 'not-allowed'
+                }
             }
           >
-            🔥 Confirmar Pedido
+            Confirmar Pedido
           </button>
         </div>
       </div>
