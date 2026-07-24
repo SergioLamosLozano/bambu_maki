@@ -258,7 +258,7 @@ export default function ProductBuilder() {
   };
 
   return (
-    <div className="pb-80 pt-4 px-4 max-w-7xl mx-auto w-full">
+    <div className="pb-[450px] pt-4 px-4 max-w-7xl mx-auto w-full">
       <StepWizard currentStep={currentStep} totalSteps={totalSteps} />
       
       <div className="mb-8">
