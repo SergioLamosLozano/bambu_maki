@@ -32,6 +32,8 @@ export default function Products() {
     { day_of_week: 6, product_variation_id: '', discount_price: '' },
   ]);
 
+  const getImageUrl = (url) => url ? (url.startsWith('http') ? url : `${API_BASE}${url}`) : null;
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -78,7 +80,7 @@ export default function Products() {
     setNewPrice(item.base_price || '');
     setDescription(item.description || '');
     setIncludesRolls(item.includes_rolls || 0);
-    setPreview(item.image_url ? `${API_BASE}${item.image_url}` : null);
+    setPreview(getImageUrl(item.image_url));
     setFile(null);
     setIsCreating(false);
   };
@@ -241,7 +243,7 @@ export default function Products() {
               <div>
                 <h3 className="font-black text-lg">{item.name}</h3>
                 <p className="text-sm text-gray-500 mb-2">{item.description}</p>
-                {item.image_url && <img src={`${API_BASE}${item.image_url}`} alt={item.name} className="h-32 w-full object-cover rounded-lg mb-2" />}
+                {item.image_url && <img src={getImageUrl(item.image_url)} alt={item.name} className="h-32 w-full object-cover rounded-lg mb-2" />}
                 <p className="font-bold text-green-600">${item.base_price}</p>
                 {item.includes_rolls > 0 && (
                   <p className="text-xs font-bold text-yellow-600 mt-1 bg-yellow-100 p-1 rounded inline-block">

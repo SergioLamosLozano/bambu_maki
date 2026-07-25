@@ -8,6 +8,8 @@ export default function Home() {
   const [products, setProducts] = useState({ rollos: [], combos: [], rolloDelDia: null });
   const [loading, setLoading] = useState(true);
 
+  const getImageUrl = (url) => url ? (url.startsWith('http') ? url : `${API_BASE}${url}`) : '';
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -93,7 +95,7 @@ export default function Home() {
             }}
           >
             {products.rolloDelDia.image_url ? (
-              <img src={`${API_BASE}${products.rolloDelDia.image_url}`} alt={products.rolloDelDia.name} className="w-full h-48 object-cover rounded-xl mb-4" />
+              <img src={getImageUrl(products.rolloDelDia.image_url)} alt={products.rolloDelDia.name} className="w-full h-48 object-cover rounded-xl mb-4" />
             ) : (
               <span className="text-6xl mb-4">🍱</span>
             )}
@@ -135,7 +137,7 @@ export default function Home() {
                 }}
               >
                 {combo.image_url ? (
-                  <img src={`${API_BASE}${combo.image_url}`} alt={combo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
+                  <img src={getImageUrl(combo.image_url)} alt={combo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
                 ) : (
                   <span className="text-6xl mb-4">🍱</span>
                 )}
@@ -171,7 +173,7 @@ export default function Home() {
                 }}
               >
                 {rollo.image_url ? (
-                  <img src={`${API_BASE}${rollo.image_url}`} alt={rollo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
+                  <img src={getImageUrl(rollo.image_url)} alt={rollo.name} className="w-full h-40 object-cover rounded-xl mb-4" />
                 ) : (
                   <span className="text-6xl mb-4">🍣</span>
                 )}
