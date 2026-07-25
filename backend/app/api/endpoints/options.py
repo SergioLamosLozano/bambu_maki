@@ -53,14 +53,24 @@ async def update_category(category_id: uuid.UUID, category: CategoryCreate, db: 
     await db.refresh(db_category)
     return db_category
 
+from sqlalchemy.exc import IntegrityError
+
 @router.delete("/categories/{category_id}")
 async def delete_category(category_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Category).filter(Category.id == category_id))
     db_category = result.scalars().first()
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
-    await db.delete(db_category)
-    await db.commit()
+    
+    try:
+        await db.delete(db_category)
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="No se puede eliminar esta categoría porque está ligada a pedidos anteriores. Desactívala en su lugar."
+        )
     return {"ok": True}
 
 @router.post("/categories/{category_id}/options", response_model=OptionResponse)
@@ -106,6 +116,14 @@ async def delete_option(option_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     db_option = result.scalars().first()
     if not db_option:
         raise HTTPException(status_code=404, detail="Option not found")
-    await db.delete(db_option)
-    await db.commit()
+    
+    try:
+        await db.delete(db_option)
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="No se puede eliminar esta opción porque ha sido usada en pedidos. Desactívala en su lugar."
+        )
     return {"ok": True}

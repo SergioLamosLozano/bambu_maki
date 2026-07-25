@@ -114,7 +114,7 @@ export default function Options() {
       toast.success('Categoría eliminada')
       fetchData()
     } catch (error) {
-      toast.error("Error al eliminar categoría")
+      toast.error(error.response?.data?.detail || "Error al eliminar categoría")
       console.error("Error deleting category:", error)
     }
   }
@@ -134,7 +134,7 @@ export default function Options() {
       setEditingOption(null)
       fetchData()
     } catch (error) {
-      toast.error(editingOption ? "Error al actualizar" : "Error al agregar opción")
+      toast.error(error.response?.data?.detail || (editingOption ? "Error al actualizar" : "Error al agregar opción"))
       console.error("Error saving option:", error)
     }
   }
@@ -145,7 +145,7 @@ export default function Options() {
       toast.success('Opción eliminada')
       fetchData()
     } catch (error) {
-      toast.error("Error al eliminar opción")
+      toast.error(error.response?.data?.detail || "Error al eliminar opción")
       console.error("Error deleting option:", error)
     }
   }

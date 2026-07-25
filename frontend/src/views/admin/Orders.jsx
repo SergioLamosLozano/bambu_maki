@@ -1,8 +1,10 @@
 import { API_URL } from '../../config'
 import React, { useState, useEffect } from 'react'
 import { RefreshCw, CloudOff, X } from 'lucide-react'
+import { useAuthStore } from '../../store/authStore'
 
 const Orders = () => {
+  const { token } = useAuthStore()
   const [isStoreOpen, setIsStoreOpen] = useState(true)
   const [isClosingModalOpen, setIsClosingModalOpen] = useState(false)
   const [storeClosedMessage, setStoreClosedMessage] = useState("En este momento nos encontramos cerrados.")
@@ -88,7 +90,6 @@ const Orders = () => {
       // Trying to open -> open immediately
       setIsStoreOpen(true)
       try {
-        const token = localStorage.getItem('token')
         await fetch(`${API_URL}/settings/store_is_open`, {
           method: 'PUT',
           headers: { 
@@ -108,8 +109,6 @@ const Orders = () => {
     setIsStoreOpen(false)
     setIsClosingModalOpen(false)
     try {
-      const token = localStorage.getItem('token')
-      
       // Save message
       await fetch(`${API_URL}/settings/store_closed_message`, {
         method: 'PUT',
