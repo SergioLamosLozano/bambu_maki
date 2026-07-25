@@ -4,6 +4,9 @@ import { RefreshCw, CloudOff, X } from 'lucide-react'
 
 const Orders = () => {
   const [isStoreOpen, setIsStoreOpen] = useState(true)
+  const [isClosingModalOpen, setIsClosingModalOpen] = useState(false)
+  const [storeClosedMessage, setStoreClosedMessage] = useState("En este momento nos encontramos cerrados.")
+  
   const [activeTab, setActiveTab] = useState('NUEVOS / PENDIENTES')
   const [orders, setOrders] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
@@ -69,23 +72,67 @@ const Orders = () => {
   }, [])
   
   const toggleStoreStatus = async () => {
-      const newStatus = !isStoreOpen;
-      setIsStoreOpen(newStatus); // Optimistic UI update
+    if (isStoreOpen) {
+      // Trying to close -> fetch current message and open modal
       try {
-          // You might need an auth token if Settings endpoint is protected, but assuming it works based on previous code.
-          const token = localStorage.getItem('token');
-          await fetch(`${API_URL}/settings/store_is_open`, {
-              method: 'PUT',
-              headers: { 
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-              },
-              body: JSON.stringify({ value: newStatus ? 'true' : 'false' })
-          });
+        const res = await fetch(`${API_URL}/settings/store_closed_message`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data && data.value) setStoreClosedMessage(data.value)
+        }
       } catch (err) {
-          console.error("Error toggling store status", err);
-          setIsStoreOpen(!newStatus); // Revert on failure
+        console.error("Error fetching closed message", err)
       }
+      setIsClosingModalOpen(true)
+    } else {
+      // Trying to open -> open immediately
+      setIsStoreOpen(true)
+      try {
+        const token = localStorage.getItem('token')
+        await fetch(`${API_URL}/settings/store_is_open`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ value: 'true' })
+        })
+      } catch (err) {
+        console.error("Error opening store", err)
+        setIsStoreOpen(false)
+      }
+    }
+  }
+
+  const confirmCloseStore = async () => {
+    setIsStoreOpen(false)
+    setIsClosingModalOpen(false)
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Save message
+      await fetch(`${API_URL}/settings/store_closed_message`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ value: storeClosedMessage })
+      })
+
+      // Set to closed
+      await fetch(`${API_URL}/settings/store_is_open`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ value: 'false' })
+      })
+    } catch (err) {
+      console.error("Error closing store", err)
+      setIsStoreOpen(true)
+    }
   }
 
   // Construye el link de WhatsApp antes de cualquier await (evita popup blocker)
@@ -452,6 +499,52 @@ const Orders = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Cierre de Tienda */}
+      {isClosingModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full relative">
+            <button 
+              onClick={() => setIsClosingModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors p-2"
+            >
+              <X strokeWidth={3} size={20} />
+            </button>
+            <h2 className="text-2xl font-black mb-2 text-slate-800">Cerrar Negocio</h2>
+            <p className="text-sm font-bold text-gray-500 mb-6">
+              El negocio ya no recibirá pedidos. Podés personalizar el mensaje que verán los clientes:
+            </p>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2">
+                Mensaje de Cierre
+              </label>
+              <textarea 
+                value={storeClosedMessage}
+                onChange={(e) => setStoreClosedMessage(e.target.value)}
+                rows={4}
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold focus:border-[#FC2803] outline-none resize-none"
+                placeholder="Ej: En este momento nos encontramos cerrados..."
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setIsClosingModalOpen(false)}
+                className="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmCloseStore}
+                className="flex-1 py-3 bg-[#FC2803] text-white font-bold rounded-xl hover:bg-[#d82202] transition-colors"
+              >
+                Confirmar Cierre
+              </button>
             </div>
           </div>
         </div>
