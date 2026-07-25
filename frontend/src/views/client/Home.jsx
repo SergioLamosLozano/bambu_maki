@@ -7,16 +7,23 @@ export default function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState({ rollos: [], combos: [], rolloDelDia: null });
   const [loading, setLoading] = useState(true);
+  const [isStoreOpen, setIsStoreOpen] = useState(true);
+  const [closedMessage, setClosedMessage] = useState("");
 
   const getImageUrl = (url) => url ? (url.startsWith('http') ? url : `${API_BASE}${url}`) : '';
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const [productsRes, todayRollRes] = await Promise.all([
+        const [productsRes, todayRollRes, openRes, msgRes] = await Promise.all([
           axios.get(`${API_URL}/products/`),
-          axios.get(`${API_URL}/products/daily_roll/today`).catch(() => ({ data: null }))
+          axios.get(`${API_URL}/products/daily_roll/today`).catch(() => ({ data: null })),
+          axios.get(`${API_URL}/settings/store_is_open`).catch(() => ({ data: { value: 'true' } })),
+          axios.get(`${API_URL}/settings/store_closed_message`).catch(() => ({ data: { value: 'En este momento nos encontramos cerrados.' } }))
         ]);
+
+        setIsStoreOpen(openRes.data?.value !== 'false');
+        setClosedMessage(msgRes.data?.value || "En este momento nos encontramos cerrados.");
 
         const data = productsRes.data;
         const dailyRollData = todayRollRes.data;
@@ -63,6 +70,20 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center py-20">
         <div className="text-4xl mb-4">🍣</div>
         <p className="font-bold uppercase tracking-widest text-sm" style={{ color: '#ECDA35' }}>Cargando menú...</p>
+      </div>
+    );
+  }
+
+  if (!isStoreOpen) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 px-6 text-center">
+        <div className="text-6xl mb-6 opacity-50">😴</div>
+        <h1 className="text-3xl font-black uppercase mb-4" style={{ color: '#ECDA35' }}>
+          ¡Estamos Cerrados!
+        </h1>
+        <p className="text-lg font-bold uppercase tracking-wider leading-relaxed max-w-md mx-auto" style={{ color: '#C99B62' }}>
+          {closedMessage}
+        </p>
       </div>
     );
   }

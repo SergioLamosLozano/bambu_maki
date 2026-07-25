@@ -30,7 +30,9 @@ async def get_all_settings(db: AsyncSession = Depends(get_db)):
     settings_dict = {s.key: s for s in settings}
     defaults = [
         StoreSettings(key="delivery_cost", value="3000", description="Costo de domicilio por defecto"),
-        StoreSettings(key="whatsapp_template", value="¡Hola! Tu pedido en Bambu Maki ha sido ACEPTADO y ya lo estamos preparando. 🎉", description="Plantilla base para WhatsApp")
+        StoreSettings(key="whatsapp_template", value="¡Hola! Tu pedido en Bambu Maki ha sido ACEPTADO y ya lo estamos preparando. 🎉", description="Plantilla base para WhatsApp"),
+        StoreSettings(key="store_is_open", value="true", description="Estado de la tienda (true/false)"),
+        StoreSettings(key="store_closed_message", value="En este momento nos encontramos cerrados. Nuestro horario de atención es de 12:00 PM a 10:00 PM.", description="Mensaje a mostrar cuando la tienda está cerrada")
     ]
     
     for default_setting in defaults:
@@ -54,6 +56,10 @@ async def get_setting(key: str, db: AsyncSession = Depends(get_db)):
             setting = StoreSettings(key="delivery_cost", value="3000", description="Costo de domicilio por defecto")
         elif key == "whatsapp_template":
             setting = StoreSettings(key="whatsapp_template", value="¡Hola! Tu pedido en Bambu Maki ha sido ACEPTADO y ya lo estamos preparando. 🎉", description="Plantilla base para WhatsApp")
+        elif key == "store_is_open":
+            setting = StoreSettings(key="store_is_open", value="true", description="Estado de la tienda (true/false)")
+        elif key == "store_closed_message":
+            setting = StoreSettings(key="store_closed_message", value="En este momento nos encontramos cerrados. Nuestro horario de atención es de 12:00 PM a 10:00 PM.", description="Mensaje a mostrar cuando la tienda está cerrada")
         else:
             raise HTTPException(status_code=404, detail="Setting not found")
         

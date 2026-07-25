@@ -8,6 +8,7 @@ const Settings = () => {
   const { token } = useAuthStore()
   const [deliveryCost, setDeliveryCost] = useState('')
   const [whatsappTemplate, setWhatsappTemplate] = useState('')
+  const [storeClosedMessage, setStoreClosedMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -23,9 +24,11 @@ const Settings = () => {
         const data = await res.json()
         const delivery = data.find(s => s.key === 'delivery_cost')
         const whatsapp = data.find(s => s.key === 'whatsapp_template')
+        const closedMsg = data.find(s => s.key === 'store_closed_message')
         
         if (delivery) setDeliveryCost(delivery.value)
         if (whatsapp) setWhatsappTemplate(whatsapp.value)
+        if (closedMsg) setStoreClosedMessage(closedMsg.value)
       }
     } catch (error) {
       console.error("Error fetching settings", error)
@@ -57,6 +60,16 @@ const Settings = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ value: whatsappTemplate })
+      })
+      
+      // Save store closed message
+      await fetch(`${API_URL}/settings/store_closed_message`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ value: storeClosedMessage })
       })
 
       setSaved(true)
@@ -117,6 +130,24 @@ const Settings = () => {
             rows="4"
             required
             placeholder="Ej. ¡Hola! Tu pedido en Bambu Maki ha sido ACEPTADO..."
+          ></textarea>
+        </div>
+
+        {/* Store Closed Message */}
+        <div className="mb-8">
+          <label className="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2">
+            Mensaje de Tienda Cerrada
+          </label>
+          <p className="text-xs text-gray-500 mb-3 font-bold leading-relaxed">
+            Texto que se mostrará en la tienda (frontend) a los clientes cuando desactives el botón de ABIERTO en el panel de pedidos.
+          </p>
+          <textarea
+            value={storeClosedMessage}
+            onChange={(e) => setStoreClosedMessage(e.target.value)}
+            className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-4 font-bold text-gray-700 focus:outline-none focus:border-yellow-400 transition-colors"
+            rows="3"
+            required
+            placeholder="Ej. En este momento nos encontramos cerrados..."
           ></textarea>
         </div>
 

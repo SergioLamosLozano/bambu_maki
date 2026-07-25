@@ -17,6 +17,9 @@ export default function Cart() {
   })
   const [deliveryCost, setDeliveryCost] = useState(3000)
 
+  const [isStoreOpen, setIsStoreOpen] = useState(true)
+  const [closedMessage, setClosedMessage] = useState("")
+
   useEffect(() => {
     fetch(`${API_URL}/settings/delivery_cost`)
       .then(res => res.json())
@@ -26,7 +29,38 @@ export default function Cart() {
         }
       })
       .catch(err => console.error("Error fetching delivery cost:", err))
+      
+    fetch(`${API_URL}/settings/store_is_open`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setIsStoreOpen(d.value !== 'false') })
+      .catch(() => {})
+      
+    fetch(`${API_URL}/settings/store_closed_message`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setClosedMessage(d.value || "En este momento nos encontramos cerrados.") })
+      .catch(() => {})
   }, [])
+
+  if (!isStoreOpen) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 px-6 text-center">
+        <div className="text-6xl mb-6 opacity-50">😴</div>
+        <h1 className="text-3xl font-black uppercase mb-4" style={{ color: '#ECDA35' }}>
+          ¡Estamos Cerrados!
+        </h1>
+        <p className="text-lg font-bold uppercase tracking-wider leading-relaxed max-w-md mx-auto mb-8" style={{ color: '#C99B62' }}>
+          {closedMessage}
+        </p>
+        <Link
+          to="/"
+          className="font-black uppercase py-4 px-8 rounded-2xl transition-colors"
+          style={{ background: '#FC2803', color: '#fff' }}
+        >
+          Volver al Inicio
+        </Link>
+      </div>
+    )
+  }
 
   if (cartItems.length === 0) {
     return (

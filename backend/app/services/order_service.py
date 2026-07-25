@@ -39,12 +39,12 @@ async def get_order_stats(db: AsyncSession):
                 # We can consider 'preparando', 'en_camino', 'entregado' as accepted revenue
                 today_revenue += order.total_price
         
-        if order.status == OrderStatus.pendiente:
-            pending_orders += 1
-        elif order.status in [OrderStatus.preparando, OrderStatus.en_camino, OrderStatus.entregado]:
-            accepted_orders += 1
-        elif order.status == OrderStatus.cancelado:
-            cancelled_orders += 1
+            if order.status == OrderStatus.pendiente:
+                pending_orders += 1
+            elif order.status in [OrderStatus.preparando, OrderStatus.en_camino, OrderStatus.entregado]:
+                accepted_orders += 1
+            elif order.status == OrderStatus.cancelado:
+                cancelled_orders += 1
             
     return {
         "today_orders": today_orders,

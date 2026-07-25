@@ -42,10 +42,15 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrdersAndStats()
-    // Cargar template de WhatsApp al inicio (sin bloquear)
+    // Cargar settings iniciales (sin bloquear)
     fetch(`${API_URL}/settings/whatsapp_template`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.value) setWhatsappTemplate(d.value) })
+      .catch(() => {})
+      
+    fetch(`${API_URL}/settings/store_is_open`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setIsStoreOpen(d.value === 'true') })
       .catch(() => {})
 
     const interval = setInterval(fetchOrdersAndStats, 10000)
@@ -62,6 +67,26 @@ const Orders = () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
+  
+  const toggleStoreStatus = async () => {
+      const newStatus = !isStoreOpen;
+      setIsStoreOpen(newStatus); // Optimistic UI update
+      try {
+          // You might need an auth token if Settings endpoint is protected, but assuming it works based on previous code.
+          const token = localStorage.getItem('token');
+          await fetch(`${API_URL}/settings/store_is_open`, {
+              method: 'PUT',
+              headers: { 
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+              },
+              body: JSON.stringify({ value: newStatus ? 'true' : 'false' })
+          });
+      } catch (err) {
+          console.error("Error toggling store status", err);
+          setIsStoreOpen(!newStatus); // Revert on failure
+      }
+  }
 
   // Construye el link de WhatsApp antes de cualquier await (evita popup blocker)
   const buildWhatsappUrl = (targetOrder, status) => {
@@ -150,7 +175,7 @@ const Orders = () => {
               {isStoreOpen ? 'ABIERTO' : 'CERRADO'}
             </span>
             <button 
-              onClick={() => setIsStoreOpen(!isStoreOpen)}
+              onClick={toggleStoreStatus}
               className={`w-12 h-6 rounded-full p-1 transition-colors ${isStoreOpen ? 'bg-green-500' : 'bg-gray-300'}`}
             >
               <div className={`w-4 h-4 rounded-full bg-white transition-transform ${isStoreOpen ? 'translate-x-6' : ''}`} />
