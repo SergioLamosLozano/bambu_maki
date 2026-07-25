@@ -14,6 +14,7 @@ export default function Options() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   
   const [editingOption, setEditingOption] = useState(null)
+  const [editingCategory, setEditingCategory] = useState(null)
   
   // Forms state
   const [categoryForm, setCategoryForm] = useState({
@@ -57,6 +58,7 @@ export default function Options() {
         setIsCategoryModalOpen(false)
         setIsOptionModalOpen(false)
         setEditingOption(null)
+        setEditingCategory(null)
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -89,7 +91,7 @@ export default function Options() {
     ), { duration: Infinity })
   }
 
-  const handleCreateCategory = async (e) => {
+  const handleSaveCategory = async (e) => {
     e.preventDefault()
     try {
       const payload = {
@@ -97,14 +99,22 @@ export default function Options() {
         product_type_id: categoryForm.product_type_id || null,
         max_selections: categoryForm.max_selections ? parseInt(categoryForm.max_selections) : null
       }
-      await axios.post(`${API_URL}/options/categories`, payload)
-      toast.success('Categoría creada correctamente')
+      
+      if (editingCategory) {
+        await axios.put(`${API_URL}/options/categories/${editingCategory.id}`, payload)
+        toast.success('Categoría actualizada correctamente')
+      } else {
+        await axios.post(`${API_URL}/options/categories`, payload)
+        toast.success('Categoría creada correctamente')
+      }
+      
       setIsCategoryModalOpen(false)
+      setEditingCategory(null)
       setCategoryForm({ name: '', product_type_id: '', is_required: false, max_selections: '', is_active: true, allow_quantity: false })
       fetchData()
     } catch (error) {
-      toast.error("Error al crear categoría")
-      console.error("Error creating category:", error)
+      toast.error(error.response?.data?.detail || (editingCategory ? "Error al actualizar categoría" : "Error al crear categoría"))
+      console.error("Error saving category:", error)
     }
   }
 
@@ -160,7 +170,11 @@ export default function Options() {
           <p className="text-gray-500 font-bold">Administra extras, gaseosas y salsas</p>
         </div>
         <button 
-          onClick={() => setIsCategoryModalOpen(true)}
+          onClick={() => {
+            setEditingCategory(null);
+            setCategoryForm({ name: '', product_type_id: '', is_required: false, max_selections: '', is_active: true, allow_quantity: false });
+            setIsCategoryModalOpen(true);
+          }}
           className="bg-[#FC2803] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#d82202] transition-colors shadow-lg"
         >
           + Nueva Categoría
@@ -187,9 +201,28 @@ export default function Options() {
                   )}
                 </div>
               </div>
-              <button onClick={() => confirmDeleteCategory(cat.id, cat.name)} className="text-red-500 hover:text-red-700 font-bold">
-                X
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => {
+                    setEditingCategory(cat);
+                    setCategoryForm({
+                      name: cat.name,
+                      product_type_id: cat.product_type_id || '',
+                      is_required: cat.is_required,
+                      max_selections: cat.max_selections || '',
+                      is_active: cat.is_active,
+                      allow_quantity: cat.allow_quantity
+                    });
+                    setIsCategoryModalOpen(true);
+                  }}
+                  className="text-gray-400 hover:text-blue-500 font-black px-2"
+                >
+                  ✎
+                </button>
+                <button onClick={() => confirmDeleteCategory(cat.id, cat.name)} className="text-red-500 hover:text-red-700 font-bold px-2">
+                  X
+                </button>
+              </div>
             </div>
             
             <div className="flex-1">
@@ -255,8 +288,10 @@ export default function Options() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h2 className="text-2xl font-black mb-6 pr-8">Nueva Categoría</h2>
-            <form onSubmit={handleCreateCategory} className="space-y-4">
+            <h2 className="text-2xl font-black mb-6 pr-8">
+              {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
+            </h2>
+            <form onSubmit={handleSaveCategory} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-gray-500 mb-2">Nombre de la Categoría</label>
                 <input 
@@ -295,7 +330,9 @@ export default function Options() {
 
               <div className="flex gap-4 pt-4">
                 <button type="button" onClick={() => setIsCategoryModalOpen(false)} className="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
-                <button type="submit" className="flex-1 py-3 bg-[#FC2803] text-white font-bold rounded-xl hover:bg-[#d82202] transition-colors">Crear</button>
+                <button type="submit" className="flex-1 py-3 bg-[#FC2803] text-white font-bold rounded-xl hover:bg-[#d82202] transition-colors">
+                  {editingCategory ? 'Guardar Cambios' : 'Crear'}
+                </button>
               </div>
             </form>
           </div>
