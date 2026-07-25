@@ -109,6 +109,19 @@ export default function Statistics() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [selectedDate, setSelectedDate] = useState('')
+  const [specificDayRevenue, setSpecificDayRevenue] = useState(null)
+  const [loadingSpecificDate, setLoadingSpecificDate] = useState(false)
+
+  const getBogotaDateString = (date) => {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(date);
+  };
+
   useEffect(() => {
     fetch(`${API_URL}/orders/analytics`)
       .then(r => {
@@ -118,6 +131,36 @@ export default function Statistics() {
       .then(d => { setData(d); setLoading(false) })
       .catch(e => { setError(e.message); setLoading(false) })
   }, [])
+
+  useEffect(() => {
+    if (selectedDate) {
+      setLoadingSpecificDate(true);
+      fetch(`${API_URL}/orders/`)
+        .then(r => r.json())
+        .then(orders => {
+            const total = orders.reduce((sum, order) => {
+                if (order.status !== 'cancelado' && order.created_at) {
+                    const bogotaDate = getBogotaDateString(new Date(order.created_at));
+                    if (bogotaDate === selectedDate) {
+                        return sum + order.total_price;
+                    }
+                }
+                return sum;
+            }, 0);
+            
+            const count = orders.filter(o => o.status !== 'cancelado' && o.created_at && getBogotaDateString(new Date(o.created_at)) === selectedDate).length;
+            
+            setSpecificDayRevenue({ total, count });
+            setLoadingSpecificDate(false);
+        })
+        .catch(err => {
+            console.error("Error fetching orders for date", err);
+            setLoadingSpecificDate(false);
+        });
+    } else {
+      setSpecificDayRevenue(null);
+    }
+  }, [selectedDate]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-96">
@@ -326,6 +369,42 @@ export default function Statistics() {
             <Bar dataKey="orders" name="Pedidos" fill={BRAND.beige} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+      {/* Quinta fila: Búsqueda por fecha específica */}
+      <div className="bg-white rounded-3xl p-6 border-2 border-gray-100 shadow-sm mt-8">
+        <h2 className="font-black text-sm uppercase tracking-wider text-gray-500 mb-6">
+          🔎 Consultar ingresos por fecha
+        </h2>
+        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+          <div className="w-full md:w-auto">
+            <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Selecciona una fecha</label>
+            <input 
+              type="date" 
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full md:w-64 px-4 py-3 rounded-xl border-2 border-gray-100 font-bold text-gray-700 outline-none focus:border-green-500 transition-colors"
+            />
+          </div>
+          
+          {loadingSpecificDate ? (
+            <div className="text-gray-400 font-bold text-sm">Cargando...</div>
+          ) : specificDayRevenue ? (
+            <div className="flex-1 w-full grid grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-2xl p-4 border border-green-100">
+                <p className="text-xs font-black text-green-700 uppercase mb-1">Ingresos de la fecha</p>
+                <p className="text-2xl font-black text-green-800">{fmt(specificDayRevenue.total)}</p>
+              </div>
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <p className="text-xs font-black text-gray-500 uppercase mb-1">Pedidos completados</p>
+                <p className="text-2xl font-black text-gray-800">{specificDayRevenue.count}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-400 font-bold text-sm italic">
+              Selecciona una fecha para ver el resumen
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

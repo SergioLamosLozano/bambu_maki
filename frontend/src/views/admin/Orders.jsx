@@ -111,12 +111,32 @@ const Orders = () => {
   }
 
 
+  const getBogotaDateString = (date) => {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(date); // en-CA gives YYYY-MM-DD
+  };
+
+  const isTodayInBogota = (dateString) => {
+    if (!dateString) return false;
+    const orderDate = new Date(dateString);
+    return getBogotaDateString(orderDate) === getBogotaDateString(new Date());
+  };
+
   // Filter orders by tab
   const filteredOrders = orders.filter(order => {
-    if (activeTab === 'NUEVOS / PENDIENTES') return order.status === 'pendiente'
-    if (activeTab === 'CONFIRMADOS') return ['preparando', 'en_camino'].includes(order.status)
-    if (activeTab === 'HISTORIAL / CANCELADOS') return order.status === 'cancelado'
-    return true
+    const isToday = isTodayInBogota(order.created_at);
+    
+    if (activeTab === 'NUEVOS / PENDIENTES') return order.status === 'pendiente' && isToday;
+    if (activeTab === 'CONFIRMADOS') return ['preparando', 'en_camino'].includes(order.status) && isToday;
+    if (activeTab === 'HISTORIAL / CANCELADOS') {
+        // Historial: cancelled, delivered, or any status if it's from a past date
+        return order.status === 'cancelado' || order.status === 'entregado' || !isToday;
+    }
+    return true;
   })
 
   return (

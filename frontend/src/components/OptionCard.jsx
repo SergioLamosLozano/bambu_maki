@@ -39,9 +39,9 @@ export default function OptionCard({
           <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{subtitle}</p>
         )}
 
-        {price && (
+        {price > 0 && (
           <div className="mt-2 text-sm font-bold text-gray-700">
-            {price === 0 ? 'GRATIS' : `+$${price.toLocaleString()}`}
+            +${price.toLocaleString()}
           </div>
         )}
 
