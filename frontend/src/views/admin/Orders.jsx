@@ -431,12 +431,20 @@ const Orders = () => {
                   </>
                 )}
                 {selectedOrder.status === 'preparando' && (
-                  <button 
-                    onClick={() => updateOrderStatus(selectedOrder.id, 'en_camino')}
-                    className="flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm uppercase transition-colors bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200"
-                  >
-                    🛵 Salió del restaurante
-                  </button>
+                  <>
+                    <button 
+                      onClick={() => updateOrderStatus(selectedOrder.id, 'cancelado', selectedOrder)}
+                      className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-black text-sm uppercase transition-colors bg-red-100 hover:bg-red-200 text-red-600"
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      onClick={() => updateOrderStatus(selectedOrder.id, 'en_camino')}
+                      className="flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm uppercase transition-colors bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200"
+                    >
+                      🛵 Salió del restaurante
+                    </button>
+                  </>
                 )}
                 {selectedOrder.status === 'en_camino' && (
                   <div className="flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm uppercase text-center bg-blue-100 text-blue-700">
