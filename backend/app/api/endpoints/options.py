@@ -7,7 +7,7 @@ import uuid
 
 from app.core.database import get_db
 from app.models.models import Category, Option, ProductType
-from app.schemas.options import CategoryCreate, CategoryResponse, OptionCreate, OptionResponse
+from app.schemas.options import CategoryCreate, CategoryResponse, OptionCreate, OptionResponse, OptionUpdate
 
 router = APIRouter()
 
@@ -74,7 +74,8 @@ async def create_option(category_id: uuid.UUID, option: OptionCreate, db: AsyncS
         category_id=category_id,
         name=option.name,
         extra_price=option.extra_price,
-        emoji=option.emoji
+        emoji=option.emoji,
+        is_active=option.is_active
     )
     db.add(db_option)
     await db.commit()
@@ -82,15 +83,18 @@ async def create_option(category_id: uuid.UUID, option: OptionCreate, db: AsyncS
     return db_option
 
 @router.put("/options/{option_id}", response_model=OptionResponse)
-async def update_option(option_id: uuid.UUID, option: OptionCreate, db: AsyncSession = Depends(get_db)):
+async def update_option(option_id: uuid.UUID, option: OptionUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Option).filter(Option.id == option_id))
     db_option = result.scalars().first()
     if not db_option:
         raise HTTPException(status_code=404, detail="Option not found")
     
-    db_option.name = option.name
-    db_option.extra_price = option.extra_price
-    db_option.emoji = option.emoji
+    if option.name is not None:
+        db_option.name = option.name
+    if option.extra_price is not None:
+        db_option.extra_price = option.extra_price
+    if option.is_active is not None:
+        db_option.is_active = option.is_active
     
     await db.commit()
     await db.refresh(db_option)

@@ -6,9 +6,15 @@ class OptionBase(BaseModel):
     name: str
     extra_price: int = 0
     emoji: Optional[str] = None
+    is_active: bool = True
 
 class OptionCreate(OptionBase):
     pass
+
+class OptionUpdate(BaseModel):
+    name: Optional[str] = None
+    extra_price: Optional[int] = None
+    is_active: Optional[bool] = None
 
 class OptionResponse(OptionBase):
     id: UUID4

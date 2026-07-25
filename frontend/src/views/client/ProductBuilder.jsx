@@ -31,7 +31,10 @@ export default function ProductBuilder() {
           // Filter categories: must be active AND (global or matches this product type)
           const activeCategories = res.data.filter(c => 
             c.is_active && (!c.product_type_id || c.product_type_id === item.product_type_id)
-          );
+          ).map(c => ({
+            ...c,
+            options: c.options.filter(o => o.is_active)
+          }));
           setCategories(activeCategories);
           
           // Initialize selections

@@ -60,6 +60,7 @@ class Option(Base):
     name = Column(String, nullable=False)
     extra_price = Column(Integer, default=0)
     emoji = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
 
     category = relationship("Category", back_populates="options")
 

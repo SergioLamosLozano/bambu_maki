@@ -13,6 +13,8 @@ export default function Options() {
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   
+  const [editingOption, setEditingOption] = useState(null)
+  
   // Forms state
   const [categoryForm, setCategoryForm] = useState({
     name: '',
@@ -26,7 +28,8 @@ export default function Options() {
   const [optionForm, setOptionForm] = useState({
     name: '',
     extra_price: 0,
-    emoji: ''
+    emoji: '',
+    is_active: true
   })
 
   const fetchData = async () => {
@@ -53,11 +56,38 @@ export default function Options() {
       if (e.key === 'Escape') {
         setIsCategoryModalOpen(false)
         setIsOptionModalOpen(false)
+        setEditingOption(null)
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const confirmDeleteCategory = (id, name) => {
+    toast((t) => (
+      <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-red-100 max-w-sm">
+        <h3 className="font-black text-red-600 mb-2">¿Eliminar {name}?</h3>
+        <p className="text-sm text-gray-600 mb-4">Esta acción también eliminará todas las opciones dentro de la categoría.</p>
+        <div className="flex justify-end gap-2">
+          <button onClick={() => toast.dismiss(t.id)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold text-sm">Cancelar</button>
+          <button onClick={() => { handleDeleteCategory(id); toast.dismiss(t.id); }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm">Eliminar</button>
+        </div>
+      </div>
+    ), { duration: Infinity })
+  }
+
+  const confirmDeleteOption = (id, name) => {
+    toast((t) => (
+      <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-red-100 max-w-sm">
+        <h3 className="font-black text-red-600 mb-2">¿Eliminar {name}?</h3>
+        <p className="text-sm text-gray-600 mb-4">Esta acción no se puede deshacer.</p>
+        <div className="flex justify-end gap-2">
+          <button onClick={() => toast.dismiss(t.id)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold text-sm">Cancelar</button>
+          <button onClick={() => { handleDeleteOption(id); toast.dismiss(t.id); }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm">Eliminar</button>
+        </div>
+      </div>
+    ), { duration: Infinity })
+  }
 
   const handleCreateCategory = async (e) => {
     e.preventDefault()
@@ -79,42 +109,44 @@ export default function Options() {
   }
 
   const handleDeleteCategory = async (id) => {
-    if(window.confirm('¿Seguro que quieres eliminar esta categoría y todas sus opciones?')) {
-      try {
-        await axios.delete(`${API_URL}/options/categories/${id}`)
-        toast.success('Categoría eliminada')
-        fetchData()
-      } catch (error) {
-        toast.error("Error al eliminar categoría")
-        console.error("Error deleting category:", error)
-      }
+    try {
+      await axios.delete(`${API_URL}/options/categories/${id}`)
+      toast.success('Categoría eliminada')
+      fetchData()
+    } catch (error) {
+      toast.error("Error al eliminar categoría")
+      console.error("Error deleting category:", error)
     }
   }
 
-  const handleCreateOption = async (e) => {
+  const handleSaveOption = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/options/categories/${selectedCategory.id}/options`, optionForm)
-      toast.success('Opción agregada')
+      if (editingOption) {
+        await axios.put(`${API_URL}/options/options/${editingOption.id}`, optionForm)
+        toast.success('Opción actualizada')
+      } else {
+        await axios.post(`${API_URL}/options/categories/${selectedCategory.id}/options`, optionForm)
+        toast.success('Opción agregada')
+      }
       setIsOptionModalOpen(false)
-      setOptionForm({ name: '', extra_price: 0, emoji: '' })
+      setOptionForm({ name: '', extra_price: 0, emoji: '', is_active: true })
+      setEditingOption(null)
       fetchData()
     } catch (error) {
-      toast.error("Error al agregar opción")
-      console.error("Error creating option:", error)
+      toast.error(editingOption ? "Error al actualizar" : "Error al agregar opción")
+      console.error("Error saving option:", error)
     }
   }
 
   const handleDeleteOption = async (id) => {
-    if(window.confirm('¿Seguro que quieres eliminar esta opción?')) {
-      try {
-        await axios.delete(`${API_URL}/options/options/${id}`)
-        toast.success('Opción eliminada')
-        fetchData()
-      } catch (error) {
-        toast.error("Error al eliminar opción")
-        console.error("Error deleting option:", error)
-      }
+    try {
+      await axios.delete(`${API_URL}/options/options/${id}`)
+      toast.success('Opción eliminada')
+      fetchData()
+    } catch (error) {
+      toast.error("Error al eliminar opción")
+      console.error("Error deleting option:", error)
     }
   }
 
@@ -155,7 +187,7 @@ export default function Options() {
                   )}
                 </div>
               </div>
-              <button onClick={() => handleDeleteCategory(cat.id)} className="text-red-500 hover:text-red-700 font-bold">
+              <button onClick={() => confirmDeleteCategory(cat.id, cat.name)} className="text-red-500 hover:text-red-700 font-bold">
                 X
               </button>
             </div>
@@ -167,14 +199,28 @@ export default function Options() {
                   <p className="text-gray-400 text-sm italic">Sin opciones</p>
                 ) : (
                   cat.options.map(opt => (
-                    <li key={opt.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <li key={opt.id} className={`flex justify-between items-center p-3 rounded-xl border ${opt.is_active ? 'bg-gray-50 border-gray-100' : 'bg-red-50/50 border-red-100 opacity-75'}`}>
                       <div className="flex items-center gap-2">
                         {opt.emoji && <span className="text-xl">{opt.emoji}</span>}
-                        <span className="font-bold text-gray-700">{opt.name}</span>
+                        <div>
+                          <span className={`font-bold ${opt.is_active ? 'text-gray-700' : 'text-gray-400 line-through'}`}>{opt.name}</span>
+                          {!opt.is_active && <span className="ml-2 text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Inactiva</span>}
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-green-600 font-black">+${opt.extra_price.toLocaleString()}</span>
-                        <button onClick={() => handleDeleteOption(opt.id)} className="text-gray-400 hover:text-red-500 font-black px-2">x</button>
+                        <button 
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            setEditingOption(opt);
+                            setOptionForm({ name: opt.name, extra_price: opt.extra_price, emoji: opt.emoji || '', is_active: opt.is_active });
+                            setIsOptionModalOpen(true);
+                          }}
+                          className="text-gray-400 hover:text-blue-500 font-black px-2"
+                        >
+                          ✎
+                        </button>
+                        <button onClick={() => confirmDeleteOption(opt.id, opt.name)} className="text-gray-400 hover:text-red-500 font-black px-2">x</button>
                       </div>
                     </li>
                   ))
@@ -183,7 +229,12 @@ export default function Options() {
             </div>
             
             <button 
-              onClick={() => { setSelectedCategory(cat); setIsOptionModalOpen(true) }}
+              onClick={() => { 
+                setSelectedCategory(cat);
+                setEditingOption(null);
+                setOptionForm({ name: '', extra_price: 0, emoji: '', is_active: true });
+                setIsOptionModalOpen(true);
+              }}
               className="w-full py-3 border-2 border-dashed border-[#FC2803] text-[#FC2803] rounded-2xl font-bold hover:bg-red-50 transition-colors"
             >
               + Agregar Opción
@@ -263,8 +314,10 @@ export default function Options() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h2 className="text-2xl font-black mb-6 pr-8">Agregar a {selectedCategory.name}</h2>
-            <form onSubmit={handleCreateOption} className="space-y-4">
+            <h2 className="text-2xl font-black mb-6 pr-8">
+              {editingOption ? 'Editar Opción' : `Agregar a ${selectedCategory.name}`}
+            </h2>
+            <form onSubmit={handleSaveOption} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-gray-500 mb-2">Nombre</label>
                 <input 
@@ -295,9 +348,16 @@ export default function Options() {
                 </div>
               </div>
 
+              <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border-2 border-gray-100 cursor-pointer" onClick={() => setOptionForm({...optionForm, is_active: !optionForm.is_active})}>
+                <input type="checkbox" checked={optionForm.is_active} readOnly className="w-5 h-5 accent-[#FC2803]" />
+                <label className="font-bold text-gray-800 cursor-pointer">Opción Activa</label>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button type="button" onClick={() => setIsOptionModalOpen(false)} className="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
-                <button type="submit" className="flex-1 py-3 bg-[#FC2803] text-white font-bold rounded-xl hover:bg-[#d82202] transition-colors">Agregar</button>
+                <button type="submit" className="flex-1 py-3 bg-[#FC2803] text-white font-bold rounded-xl hover:bg-[#d82202] transition-colors">
+                  {editingOption ? 'Guardar Cambios' : 'Agregar'}
+                </button>
               </div>
             </form>
           </div>
