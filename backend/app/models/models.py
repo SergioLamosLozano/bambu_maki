@@ -37,6 +37,7 @@ class ProductVariation(Base):
     image_url = Column(String, nullable=True)
     base_price = Column(Integer, nullable=False)
     includes_rolls = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
 
     product_type = relationship("ProductType", back_populates="variations")
 

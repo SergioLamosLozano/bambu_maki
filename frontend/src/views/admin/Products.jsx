@@ -11,6 +11,7 @@ export default function Products() {
   const [editingItem, setEditingItem] = useState(null);
   const [description, setDescription] = useState('');
   const [includesRolls, setIncludesRolls] = useState(0);
+  const [isActive, setIsActive] = useState(true);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   
@@ -40,7 +41,7 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/products/`);
+      const response = await axios.get(`${API_URL}/products/?admin=true`);
       const types = response.data;
       setProductTypes(types);
       
@@ -80,6 +81,7 @@ export default function Products() {
     setNewPrice(item.base_price || '');
     setDescription(item.description || '');
     setIncludesRolls(item.includes_rolls || 0);
+    setIsActive(item.is_active !== false); // default to true if undefined
     setPreview(getImageUrl(item.image_url));
     setFile(null);
     setIsCreating(false);
@@ -91,6 +93,7 @@ export default function Products() {
     setNewPrice('');
     setDescription('');
     setIncludesRolls(0);
+    setIsActive(true);
     setPreview(null);
     setFile(null);
     setIsCreating(true);
@@ -102,6 +105,24 @@ export default function Products() {
     if (selected) {
       setFile(selected);
       setPreview(URL.createObjectURL(selected));
+    }
+  };
+
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto "${name}"?`)) return;
+    try {
+      await axios.delete(`${API_URL}/products/variations/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      toast.success("Producto eliminado");
+      fetchProducts();
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.detail || "No se puede eliminar el producto.");
+      } else {
+        toast.error("Error al eliminar el producto");
+      }
     }
   };
 
@@ -126,7 +147,8 @@ export default function Products() {
         base_price: parseInt(newPrice) || 0,
         description,
         image_url: imageUrl,
-        includes_rolls: parseInt(includesRolls) || 0
+        includes_rolls: parseInt(includesRolls) || 0,
+        is_active: isActive
       };
 
       if (isCreating) {
@@ -241,7 +263,8 @@ export default function Products() {
           {products.map(item => (
             <div key={item.id} className="bg-white rounded-xl shadow p-4 border border-gray-100 flex flex-col justify-between">
               <div>
-                <h3 className="font-black text-lg">{item.name}</h3>
+                <h3 className={`font-black text-lg ${item.is_active === false ? 'text-gray-400 line-through' : ''}`}>{item.name}</h3>
+                {item.is_active === false && <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">Inactivo</span>}
                 <p className="text-sm text-gray-500 mb-2">{item.description}</p>
                 {item.image_url && <img src={getImageUrl(item.image_url)} alt={item.name} className="h-32 w-full object-cover rounded-lg mb-2" />}
                 <p className="font-bold text-green-600">${item.base_price}</p>
@@ -251,12 +274,20 @@ export default function Products() {
                   </p>
                 )}
               </div>
-              <button 
-                onClick={() => openEdit(item)}
-                className="mt-4 bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-bold py-2 px-4 rounded-lg"
-              >
-                Editar
-              </button>
+              <div className="mt-4 flex gap-2">
+                <button 
+                  onClick={() => openEdit(item)}
+                  className="flex-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-bold py-2 px-4 rounded-lg"
+                >
+                  Editar
+                </button>
+                <button 
+                  onClick={() => handleDelete(item.id, item.name)}
+                  className="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-2 px-4 rounded-lg"
+                >
+                  Borrar
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -363,12 +394,31 @@ export default function Products() {
               )}
             </div>
 
-            <div className="flex gap-3 justify-end mt-8">
-              <button onClick={() => { setEditingItem(null); setIsCreating(false); }} className="px-6 py-3 bg-gray-100 text-gray-500 hover:bg-gray-200 font-bold uppercase rounded-xl transition-colors">
+            <div className="mb-5 flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border-2 border-gray-100 cursor-pointer" onClick={() => setIsActive(!isActive)}>
+              <input 
+                type="checkbox" 
+                checked={isActive} 
+                readOnly 
+                className="w-5 h-5 accent-yellow-500" 
+              />
+              <div>
+                <label className="font-bold text-gray-800 cursor-pointer">Producto Activo</label>
+                <p className="text-xs text-gray-500">Desmarca si el producto ya no está disponible o no se puede borrar.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={() => { setEditingItem(null); setIsCreating(false); }}
+                className="flex-1 py-4 text-gray-500 font-black hover:bg-gray-100 rounded-2xl transition-colors uppercase tracking-widest text-sm"
+              >
                 Cancelar
               </button>
-              <button onClick={handleSave} className="px-6 py-3 bg-green-500 text-white font-black uppercase rounded-xl hover:bg-green-600 hover:-translate-y-0.5 transition-all shadow-md shadow-green-200">
-                Guardar Cambios
+              <button 
+                onClick={handleSave}
+                className="flex-1 py-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black rounded-2xl transition-all shadow-md uppercase tracking-widest text-sm"
+              >
+                {isCreating ? "Crear Producto" : "Guardar Cambios"}
               </button>
             </div>
           </div>

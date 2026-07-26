@@ -19,6 +19,7 @@ class VariationCreate(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     includes_rolls: Optional[int] = 0
+    is_active: Optional[bool] = True
 
 class VariationUpdate(BaseModel):
     name: Optional[str] = None
@@ -26,6 +27,7 @@ class VariationUpdate(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     includes_rolls: Optional[int] = None
+    is_active: Optional[bool] = None
 
 class VariationResponse(BaseModel):
     id: UUID4
@@ -34,6 +36,7 @@ class VariationResponse(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     includes_rolls: Optional[int] = 0
+    is_active: bool
     product_type_id: UUID4
     
     class Config:
@@ -65,12 +68,19 @@ class ProductTypeResponse(BaseModel):
         from_attributes = True
 
 @router.get("/", response_model=List[ProductTypeResponse])
-async def get_all_products(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(ProductType)
-        .options(selectinload(ProductType.variations))
-        .filter(ProductType.is_active == True)
-    )
+async def get_all_products(admin: bool = False, db: AsyncSession = Depends(get_db)):
+    if admin:
+        result = await db.execute(
+            select(ProductType)
+            .options(selectinload(ProductType.variations))
+            .filter(ProductType.is_active == True)
+        )
+    else:
+        result = await db.execute(
+            select(ProductType)
+            .options(selectinload(ProductType.variations.and_(ProductVariation.is_active == True)))
+            .filter(ProductType.is_active == True)
+        )
     return result.scalars().all()
 
 @router.post("/variations", response_model=VariationResponse)
@@ -85,7 +95,8 @@ async def create_variation(
         base_price=variation_in.base_price,
         description=variation_in.description,
         image_url=variation_in.image_url,
-        includes_rolls=variation_in.includes_rolls
+        includes_rolls=variation_in.includes_rolls,
+        is_active=variation_in.is_active
     )
     db.add(variation)
     await db.commit()
@@ -114,10 +125,36 @@ async def update_variation(
         variation.image_url = variation_in.image_url
     if variation_in.includes_rolls is not None:
         variation.includes_rolls = variation_in.includes_rolls
+    if variation_in.is_active is not None:
+        variation.is_active = variation_in.is_active
         
     await db.commit()
     await db.refresh(variation)
     return variation
+
+from sqlalchemy.exc import IntegrityError
+
+@router.delete("/variations/{variation_id}")
+async def delete_variation(
+    variation_id: UUID4,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(ProductVariation).filter(ProductVariation.id == variation_id))
+    variation = result.scalars().first()
+    if not variation:
+        raise HTTPException(status_code=404, detail="Product variation not found")
+        
+    try:
+        await db.delete(variation)
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="No se puede eliminar este producto porque está ligado a pedidos anteriores. Desactívalo en su lugar."
+        )
+    return {"ok": True}
 
 @router.get("/daily_rolls", response_model=List[DailyRollResponse])
 async def get_daily_rolls(db: AsyncSession = Depends(get_db)):
