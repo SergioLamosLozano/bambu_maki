@@ -3,7 +3,8 @@ import { Check } from 'lucide-react';
 
 export default function OptionCard({ 
   title, 
-  subtitle, 
+  subtitle,
+  description, 
   price, 
   image, 
   isSelected, 
@@ -36,7 +37,11 @@ export default function OptionCard({
         <h3 className="font-extrabold text-lg text-gray-800 leading-tight mb-1">{title}</h3>
         
         {subtitle && (
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{subtitle}</p>
+          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">{subtitle}</p>
+        )}
+
+        {description && (
+          <p className="text-xs text-gray-500 font-medium leading-snug mb-2">{description}</p>
         )}
 
         {price > 0 && (

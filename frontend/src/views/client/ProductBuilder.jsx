@@ -240,6 +240,7 @@ export default function ProductBuilder() {
             <OptionCard 
               key={option.id}
               title={option.name}
+              description={option.description}
               price={option.extra_price}
               image={option.emoji}
               isSelected={!!(selections[category.id] && selections[category.id][option.id])}

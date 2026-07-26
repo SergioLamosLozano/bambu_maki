@@ -4,6 +4,7 @@ import uuid
 
 class OptionBase(BaseModel):
     name: str
+    description: Optional[str] = None
     extra_price: int = 0
     emoji: Optional[str] = None
     is_active: bool = True
@@ -13,6 +14,7 @@ class OptionCreate(OptionBase):
 
 class OptionUpdate(BaseModel):
     name: Optional[str] = None
+    description: Optional[str] = None
     extra_price: Optional[int] = None
     is_active: Optional[bool] = None
 

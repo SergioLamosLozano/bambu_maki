@@ -28,6 +28,7 @@ export default function Options() {
   
   const [optionForm, setOptionForm] = useState({
     name: '',
+    description: '',
     extra_price: 0,
     emoji: '',
     is_active: true
@@ -238,6 +239,11 @@ export default function Options() {
                         <div>
                           <span className={`font-bold ${opt.is_active ? 'text-gray-700' : 'text-gray-400 line-through'}`}>{opt.name}</span>
                           {!opt.is_active && <span className="ml-2 text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Inactiva</span>}
+                          {opt.description && (
+                            <p className="text-xs text-gray-500 font-bold mt-1 line-clamp-2 leading-snug pr-4">
+                              {opt.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -246,7 +252,7 @@ export default function Options() {
                           onClick={() => {
                             setSelectedCategory(cat);
                             setEditingOption(opt);
-                            setOptionForm({ name: opt.name, extra_price: opt.extra_price, emoji: opt.emoji || '', is_active: opt.is_active });
+                            setOptionForm({ name: opt.name, description: opt.description || '', extra_price: opt.extra_price, emoji: opt.emoji || '', is_active: opt.is_active });
                             setIsOptionModalOpen(true);
                           }}
                           className="text-gray-400 hover:text-blue-500 font-black px-2"
@@ -265,7 +271,7 @@ export default function Options() {
               onClick={() => { 
                 setSelectedCategory(cat);
                 setEditingOption(null);
-                setOptionForm({ name: '', extra_price: 0, emoji: '', is_active: true });
+                setOptionForm({ name: '', description: '', extra_price: 0, emoji: '', is_active: true });
                 setIsOptionModalOpen(true);
               }}
               className="w-full py-3 border-2 border-dashed border-[#FC2803] text-[#FC2803] rounded-2xl font-bold hover:bg-red-50 transition-colors"
@@ -362,6 +368,16 @@ export default function Options() {
                   placeholder="Ej: Coca Cola, Salsa Teriyaki"
                   className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold focus:border-[#FC2803] outline-none"
                   value={optionForm.name} onChange={e => setOptionForm({...optionForm, name: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-500 mb-2">Descripción (Opcional)</label>
+                <textarea 
+                  rows="2"
+                  placeholder="Detalles sobre esta opción..."
+                  className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold focus:border-[#FC2803] outline-none resize-none"
+                  value={optionForm.description} onChange={e => setOptionForm({...optionForm, description: e.target.value})}
                 />
               </div>
 

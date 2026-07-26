@@ -83,6 +83,7 @@ async def create_option(category_id: uuid.UUID, option: OptionCreate, db: AsyncS
     db_option = Option(
         category_id=category_id,
         name=option.name,
+        description=option.description,
         extra_price=option.extra_price,
         emoji=option.emoji,
         is_active=option.is_active
@@ -101,6 +102,8 @@ async def update_option(option_id: uuid.UUID, option: OptionUpdate, db: AsyncSes
     
     if option.name is not None:
         db_option.name = option.name
+    if option.description is not None:
+        db_option.description = option.description
     if option.extra_price is not None:
         db_option.extra_price = option.extra_price
     if option.is_active is not None:
