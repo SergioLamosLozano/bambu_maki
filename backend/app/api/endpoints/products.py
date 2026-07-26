@@ -36,7 +36,7 @@ class VariationResponse(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     includes_rolls: Optional[int] = 0
-    is_active: bool
+    is_active: Optional[bool] = True
     product_type_id: UUID4
     
     class Config:
@@ -67,6 +67,8 @@ class ProductTypeResponse(BaseModel):
     class Config:
         from_attributes = True
 
+from sqlalchemy import select, or_
+
 @router.get("/", response_model=List[ProductTypeResponse])
 async def get_all_products(admin: bool = False, db: AsyncSession = Depends(get_db)):
     if admin:
@@ -78,7 +80,9 @@ async def get_all_products(admin: bool = False, db: AsyncSession = Depends(get_d
     else:
         result = await db.execute(
             select(ProductType)
-            .options(selectinload(ProductType.variations.and_(ProductVariation.is_active == True)))
+            .options(selectinload(ProductType.variations.and_(
+                or_(ProductVariation.is_active == True, ProductVariation.is_active.is_(None))
+            )))
             .filter(ProductType.is_active == True)
         )
     return result.scalars().all()
